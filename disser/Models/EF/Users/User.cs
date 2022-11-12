@@ -14,7 +14,7 @@ namespace disser.Models.EF.Users
         public bool isVerify { get; set; }
         public int? LeaderID { get; set; }
         public List<Documents>? Documents { get; set; }
-        public string? Comments { get; set; }
+        public string? Comments { get; set; } 
         public static string Encode(string password)
         {
             try
