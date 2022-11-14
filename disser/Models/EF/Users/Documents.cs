@@ -6,6 +6,6 @@ namespace disser.Models.EF.Users
     {
         public string DocumentType { get; set; }
         public string DocumentName { get; set; }
-        public int UserId { get; set; }
+        public int UserId { get; set; }  
     }
 }
