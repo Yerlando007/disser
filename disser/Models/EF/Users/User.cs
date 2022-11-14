@@ -8,9 +8,7 @@ namespace disser.Models.EF.Users
         public string Username { get; set; }
         public string Password { get; set; }
         public string Mail { get; set; }
-        public DateTime BirthDay { get; set; }
         public string Role { get; set; }
-        public string? UserPhoto { get; set; }
         public bool isVerify { get; set; }
         public int? LeaderID { get; set; }
         public List<Documents>? Documents { get; set; }
