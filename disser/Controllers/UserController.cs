@@ -53,7 +53,7 @@ namespace disser.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Ошибка метод Register()");
+                    _logger.LogError(ex, "Ошибка метод GetUserInfo()");
                     result.StatusCode = -1;
                     result.ErrorMessage = ex.Message.ToString();
                 }
@@ -65,7 +65,7 @@ namespace disser.Controllers
 
         [HttpPost("VerifyUser")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> VerifyUser([FromForm] Verify verify)
+        public async Task<IActionResult> VerifyUser([FromForm] VerifyFormData verify)
         {
             var role = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
             if (User.Identity.IsAuthenticated && role.Role == "Admin")
@@ -88,7 +88,7 @@ namespace disser.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Ошибка метод Register()");
+                    _logger.LogError(ex, "Ошибка метод VerifyUser()");
                     result.StatusCode = -1;
                     result.ErrorMessage = ex.Message.ToString();
                 }
@@ -123,7 +123,7 @@ namespace disser.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Ошибка метод Register()");
+                    _logger.LogError(ex, "Ошибка метод GetUsers()");
                     result.StatusCode = -1;
                     result.ErrorMessage = ex.Message.ToString();
                 }
@@ -158,7 +158,7 @@ namespace disser.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Ошибка метод Register()");
+                    _logger.LogError(ex, "Ошибка метод GetIspoltinel()");
                     result.StatusCode = -1;
                     result.ErrorMessage = ex.Message.ToString();
                 }
@@ -173,7 +173,7 @@ namespace disser.Controllers
         public async Task<IActionResult> GetRukovoditel()
         {
             var role = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
-            if (User.Identity.IsAuthenticated && role.Role == "Пользователь" && role.isVerify == true)
+            if (User.Identity.IsAuthenticated && role.Role == "Создатель")
             {
                 Response<List<User>> result = new Response<List<User>>();
                 try
@@ -193,7 +193,7 @@ namespace disser.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Ошибка метод Register()");
+                    _logger.LogError(ex, "Ошибка метод GetRukovoditel()");
                     result.StatusCode = -1;
                     result.ErrorMessage = ex.Message.ToString();
                 }
@@ -205,7 +205,7 @@ namespace disser.Controllers
 
         [HttpPost("Login")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Login([FromForm] Login user)
+        public async Task<IActionResult> Login([FromForm] LoginFormData user)
         {
             Response<LoginRole<List<AuthOptions>>> result = new Response<LoginRole<List<AuthOptions>>>();
             try
@@ -225,7 +225,7 @@ namespace disser.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка метод CloseLoans()");
+                _logger.LogError(ex, "Ошибка метод Login()");
                 result.StatusCode = -1;
                 result.ErrorMessage = ex.Message.ToString();
             }
@@ -235,7 +235,7 @@ namespace disser.Controllers
 
         [HttpPost("Register")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Register([FromForm] FormDataUser user)
+        public async Task<IActionResult> Register([FromForm] UserFormData user)
 
         {
             Response<List<User>> result = new Response<List<User>>();

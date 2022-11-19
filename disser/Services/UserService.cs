@@ -96,12 +96,13 @@ namespace disser.Services
             user.Add(users);
             return user;
         }
-        public async Task<List<User>> VerifyUser([FromForm] Verify verify)
+        public async Task<List<User>> VerifyUser([FromForm] VerifyFormData verify)
         {
             List<User> result = new List<User>();
             var request = await _db.Users.FirstOrDefaultAsync(r => r.Id == verify.Id);
             request.isVerify = true;
-            request.LeaderID = verify.LeaderID;
+            request.LeaderID = verify.LeaderID != null ? verify.LeaderID : null;
+            request.Role = verify.Role;
             result.Add(request);
             await _db.SaveChangesAsync();
             return result;
@@ -121,7 +122,7 @@ namespace disser.Services
             var users = await _db.Users.ToListAsync();
             return users;
         }
-        public async Task<LoginRole<List<AuthOptions>>> GetIdentity([FromForm] Login user)
+        public async Task<LoginRole<List<AuthOptions>>> GetIdentity([FromForm] LoginFormData user)
         {
             LoginRole<List<AuthOptions>> role = new LoginRole<List<AuthOptions>>();
             var encodedPassword = User.Encode(user.Password);
@@ -153,7 +154,7 @@ namespace disser.Services
             role.Role = person.Role;
             return role;
         }
-        public async Task<List<User>> Register([FromForm] FormDataUser user)
+        public async Task<List<User>> Register([FromForm] UserFormData user)
         {
             List<User> result = new List<User>();
             List<Documents> docs = new List<Documents>();   

@@ -6,12 +6,12 @@ namespace disser.Interfaces
 {
     public interface IUserService
     {
-        Task<LoginRole<List<AuthOptions>>> GetIdentity([FromForm] Login user);
-        Task<List<User>> Register([FromForm] FormDataUser user);
+        Task<LoginRole<List<AuthOptions>>> GetIdentity([FromForm] LoginFormData user);
+        Task<List<User>> Register([FromForm] UserFormData user);
         Task<List<User>> GetUsers();
         Task<List<User>> GetRukovoditel();
         Task<List<User>> GetIspoltinel(int id);
-        Task<List<User>> VerifyUser([FromForm] Verify user);
+        Task<List<User>> VerifyUser([FromForm] VerifyFormData user);
         Task<List<User>> GetUserInfo(int id);
     }
 }

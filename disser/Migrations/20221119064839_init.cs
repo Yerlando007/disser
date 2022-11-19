@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -22,9 +21,7 @@ namespace disser.Migrations
                     Username = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false),
                     Mail = table.Column<string>(type: "text", nullable: false),
-                    BirthDay = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Role = table.Column<string>(type: "text", nullable: false),
-                    UserPhoto = table.Column<string>(type: "text", nullable: true),
                     isVerify = table.Column<bool>(type: "boolean", nullable: false),
                     LeaderID = table.Column<int>(type: "integer", nullable: true),
                     Comments = table.Column<string>(type: "text", nullable: true)
@@ -42,7 +39,7 @@ namespace disser.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     DocumentType = table.Column<string>(type: "text", nullable: false),
                     DocumentName = table.Column<string>(type: "text", nullable: false),
-                    UserId = table.Column<int>(type: "integer", nullable: true)
+                    UserId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -51,7 +48,8 @@ namespace disser.Migrations
                         name: "FK_Documents_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

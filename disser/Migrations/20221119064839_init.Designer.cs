@@ -12,7 +12,7 @@ using disser.Models.Base;
 namespace disser.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20221113130743_init")]
+    [Migration("20221119064839_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -41,7 +41,7 @@ namespace disser.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -58,9 +58,6 @@ namespace disser.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("BirthDay")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Comments")
                         .HasColumnType("text");
@@ -84,9 +81,6 @@ namespace disser.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserPhoto")
-                        .HasColumnType("text");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
@@ -103,7 +97,9 @@ namespace disser.Migrations
                 {
                     b.HasOne("disser.Models.EF.Users.User", null)
                         .WithMany("Documents")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("disser.Models.EF.Users.User", b =>
