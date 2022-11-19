@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using disser.Models.EF;
+using disser.Models.EF.Users;
 
 namespace disser.Models.Base
 {
@@ -10,5 +10,6 @@ namespace disser.Models.Base
 
         }
         public DbSet<User>? Users { get; set; }
+        public DbSet<Documents>? Documents { get; set; }
     }
 }
