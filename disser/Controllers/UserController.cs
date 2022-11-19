@@ -236,6 +236,7 @@ namespace disser.Controllers
         [HttpPost("Register")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Register([FromForm] FormDataUser user)
+
         {
             Response<List<User>> result = new Response<List<User>>();
             try

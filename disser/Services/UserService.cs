@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using disser.Interfaces;
 using disser.Models.Base;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ using System.Security.Claims;
 using System;
 using System.Xml.Linq;
 
+
 namespace disser.Services
 {
     public class UserService : IUserService
@@ -19,12 +21,14 @@ namespace disser.Services
         private readonly AppDbContext _db;
         public UserService(AppDbContext db)
             => _db = db;
+
         public DateTime deletedotfromdate(DateTime datewithoutdot)
         {
             var newdatewithoutdot = datewithoutdot.ToString("yyyy-MM-dd HH:mm:ss");
             DateTime newdatenormal = Convert.ToDateTime(newdatewithoutdot);
             return newdatenormal;
         }
+
         public List<string> _AddFiles(List<IFormFile> addedFiles)
         {
             List<string> filelist = new List<string>();
@@ -177,6 +181,7 @@ namespace disser.Services
                 isVerify = false,
                 Documents = docs != null ? docs : null,
                 Comments = user.Commemts != null ? user.Commemts : null,
+
             };
             await _db.Users.AddAsync(newUser);
             result.Add(newUser);
