@@ -1,10 +1,10 @@
 ﻿using disser.Models.Base;
 
-namespace disser.Models.GOST
+namespace disser.Models.EF.GOST
 {
     public class GOSTKeyWords : EntityBase<int>
     {
-        public string key { get; set; }
+        public string KeyWords { get; set; }
         public int GOSTID { get; set; }
     }
 }

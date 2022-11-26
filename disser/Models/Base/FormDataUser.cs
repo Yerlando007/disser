@@ -22,11 +22,11 @@ namespace disser.Models.Base
         public int Id { get; set; }
         public bool IsVerify { get; set; }
         public string Role { get; set; }
-        public int LeaderID { get; set; }
+        public int? LeaderID { get; set; }
     }
     public class GostFormData
     {
-        public IFormFile Gost { get; set; }
+        public List<IFormFile> Gost { get; set; }
     }
     public class RukovoditelWantWorkFormData
     {
