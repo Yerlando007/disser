@@ -7,6 +7,6 @@ namespace disser.Interfaces
 {
     public interface IGOST
     {
-        Task<List<GOST>> CreateGOST(string userName, [FromForm] GostFormData gost);
+        Task<List<CreatedGOST>> CreateGOST(string userName, [FromForm] GostFormData gost);
     }
 }

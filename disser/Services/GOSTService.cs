@@ -172,7 +172,7 @@ namespace disser.Services
 
   };
 
-        public string Keywords(IFormFile docFile)
+        public string Keywords(string docFile)
         {
 
             var files = GetFiles();
@@ -189,11 +189,11 @@ namespace disser.Services
                 foreach (var fileName in files)
                 {
                     int counter = 0;
-                    if (fileName != docFile.FileName)
+                    if (fileName != docFile)
                     {
                         foreach (var word_1 in database[fileName].Split(','))
                         {
-                            foreach (var word_2 in database[docFile.FileName].Split(','))
+                            foreach (var word_2 in database[docFile].Split(','))
                             {
                                 if (word_1 == word_2)
                                     counter++;
@@ -357,29 +357,37 @@ namespace disser.Services
 
         }
 
-        public async Task<List<GOST>> CreateGOST(string userName, [FromForm] GostFormData gost)
+        public async Task<List<CreatedGOST>> CreateGOST(string userName, [FromForm] GostFormData gost)
         {
-            List<GOST> result = new List<GOST>();
+            List<CreatedGOST> result = new List<CreatedGOST>();
             var user = await _db.Users.FirstOrDefaultAsync(r => r.Username == userName);
-            List<UsersGosts> userGOSTS = new List<UsersGosts>();
+            List<AllGOST> userGOSTS = new List<AllGOST>();
             List<string> gostFiles = new List<string>();
+            List<string> similarFile = new List<string>();
+
             if (gost.Gost.Count > 0)
             {
                 gostFiles = _AddFiles(gost.Gost);
             }
+            foreach (var gostFile in gostFiles)
+            {
+                var similarFileName = Keywords(gostFile);
+                similarFile.Add(similarFileName);
+            }           
             for (int i = 0; i < gostFiles.Count; i++)
             {
-                userGOSTS.Add(new UsersGosts
+                userGOSTS.Add(new AllGOST
                 {
-                    gostName = gostFiles[i],
+                    GOSTName = gostFiles[i]                 
                 });
             }
-            var newGost = new GOST
+            var newGost = new CreatedGOST
             {
                 userId = user.Id,
-                UsersGosts = userGOSTS,
+                AllGOST = userGOSTS,
                 OnWork = false,
-                isFinished = false
+                isFinished = false,
+                similarGOSTs = String.Join(", ", similarFile)
             };
             await _db.GOST.AddAsync(newGost);
             result.Add(newGost);

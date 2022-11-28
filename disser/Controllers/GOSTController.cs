@@ -27,10 +27,10 @@ namespace disser.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateGOST([FromForm] GostFormData gost)
         {
-            Response<List<GOST>> result = new Response<List<GOST>>();
+            Response<List<CreatedGOST>> result = new Response<List<CreatedGOST>>();
             try
             {
-                List<GOST> res = await _igost.CreateGOST(User.Identity.Name, gost);
+                List<CreatedGOST> res = await _igost.CreateGOST(User.Identity.Name, gost);
 
                 if (res != null)
                 {
