@@ -128,9 +128,44 @@ namespace disser.Controllers
             return BadRequest("Пользователь не имеет доступа");
         }
 
+        [HttpPost("ChoiseRukovoditel")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> GiveTasktoIspoknitel([FromForm] GiveTasktoIspolnitel giveTasktoIspolnitel)
+        {
+            var result = new Response<RukovoditelWantWork>();
+            try
+            {
+                var res = await _igost.GiveTasktoIspoknitel(giveTasktoIspolnitel);
+
+                if (res != null)
+                {
+                    result.StatusCode = 0;
+                    result.Result = res;
+                }
+                else
+                {
+                    result.StatusCode = -2;
+                    result.ErrorMessage = "Не найдено";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка метод ChoiseRukovoditel()");
+                result.StatusCode = -1;
+                result.ErrorMessage = ex.Message.ToString();
+            }
+            return Ok(result);
+            //var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            //if (User.Identity.IsAuthenticated && userRequest.Role == "Создатель")
+            //{
+
+            //}
+            //return BadRequest("Пользователь не имеет доступа");
+        }
+
         [HttpPost("TakeGOSTs")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> TakeGOSTs([FromForm] TakeGOSTs takeGosts)
+        public async Task<IActionResult> TakeGOSTsByRukovoditel([FromForm] TakeGOSTs takeGosts)
         {
             var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
             if (User.Identity.IsAuthenticated && userRequest.Role == "Руководитель")
@@ -138,7 +173,7 @@ namespace disser.Controllers
                 var result = new Response<CreatedGOST>();
                 try
                 {
-                    var res = await _igost.TakeGOSTs(takeGosts, userRequest.Username);
+                    var res = await _igost.TakeGOSTsByRukovoditel(takeGosts, userRequest.Username);
 
                     if (res != null)
                     {

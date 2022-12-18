@@ -38,6 +38,35 @@ namespace disser.Models.Base
         public List<IFormFile> Gost { get; set; }
         public int UserId { get; set; }
     }
+    public class GiveTasktoIspolnitel
+    {
+        public int IspoltitelID { get; set; }
+        public int TaskId { get; set; }
+    }
+    public class IspolnitelWork
+    {
+        public IFormFile IspolnitelFile { get; set; }
+        public string CommentFromIspolnitel { get; set; }
+    }
+    public class TranslatorAddFile
+    {
+        public IFormFile TranslateFileName { get; set; }
+        public string? CommentFromTranslator { get; set; }
+
+    }
+    public class AcceptTanslatorWork
+    {
+        public bool IsFinished { get; set; }
+        public string CommentToTranslator { get; set; }
+        public int TranslatorId { get; set; }
+
+    }
+    public class RukovoditelAcceptWork
+    {
+        public bool IsFinished { get; set; }
+        public string CommentToIspolnitel { get; set; }
+        public int TaskId { get; set; }
+    }
     public class ChoisedRukovoditel
     {
         public int RukovoditelId { get; set; }

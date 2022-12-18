@@ -16,5 +16,6 @@ namespace disser.Models.Base
         public DbSet<AllGOST>? AllGOST { get; set; }
         public DbSet<RukovoditelWantWork>? RukovoditelWantWork { get; set; }
         public DbSet<SimilarFile>? SimilarFiles { get; set; }
+        public DbSet<TranslateFile>? TranslateFile { get; set; }
     }
 }
