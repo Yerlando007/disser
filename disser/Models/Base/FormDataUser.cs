@@ -19,15 +19,31 @@ namespace disser.Models.Base
     }
     public class VerifyFormData
     {
-        public int Id { get; set; }
+        public int UserId { get; set; }
         public bool IsVerify { get; set; }
         public string Role { get; set; }
-        public int? LeaderID { get; set; }
+        public int? LeaderId { get; set; }
+    }
+    public class TakeGOSTs
+    {
+        public List<IFormFile> File { get; set; }
+        public List<DateTime> StartDate  { get; set; }
+        public List<DateTime> EndDate { get; set; }
+        public List<string> Comment { get; set; }
+        public int GOSTId { get; set; }
+        public int RukovoditelId { get; set; }
     }
     public class GostFormData
     {
         public List<IFormFile> Gost { get; set; }
+        public int UserId { get; set; }
     }
+    public class ChoisedRukovoditel
+    {
+        public int RukovoditelId { get; set; }
+        public int CreatedGOSTId { get; set; }
+    }
+
     public class RukovoditelWantWorkFormData
     {
         public List<string> DocumentName { get; set; }

@@ -23,40 +23,213 @@ namespace disser.Controllers
             _igost = gost;
             _db = db;
         }
-        [HttpPost("CreteGOST")]
+
+        [HttpPost("AddGOSTS")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> AddGOSTS()
+        {
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Создатель")
+            {
+                var result = new Response<List<AllGOST>>();
+                try
+                {
+                    var res = await _igost.AddGOSTS();
+
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка метод GetUserInfo()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
+                }
+
+                return Ok(result);
+            }
+            return BadRequest("Пользователь не имеет доступа");
+        }
+
+        [HttpPost("GiveTaskToIspolnitel")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> GiveTaskToIspolnitel()
+        {
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Создатель")
+            {
+                var result = new Response<List<AllGOST>>();
+                try
+                {
+                    var res = await _igost.AddGOSTS();
+
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка метод GetUserInfo()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
+                }
+
+                return Ok(result);
+            }
+            return BadRequest("Пользователь не имеет доступа");
+        }
+
+        [HttpPost("ChoiseRukovoditel")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> ChoiseRukovoditel([FromForm] ChoisedRukovoditel choisedRukovoditel)
+        {
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Создатель")
+            {
+                var result = new Response<CreatedGOST>();
+                try
+                {
+                    var res = await _igost.ChoiseRukovoditel(choisedRukovoditel);
+
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка метод ChoiseRukovoditel()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
+                }
+                return Ok(result);
+            }
+            return BadRequest("Пользователь не имеет доступа");
+        }
+
+        [HttpPost("TakeGOSTs")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> TakeGOSTs([FromForm] TakeGOSTs takeGosts)
+        {
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Руководитель")
+            {
+                var result = new Response<CreatedGOST>();
+                try
+                {
+                    var res = await _igost.TakeGOSTs(takeGosts, userRequest.Username);
+
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка метод TakeGOSTs()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
+                }
+                return Ok(result);
+            }
+            return BadRequest("Пользователь не имеет доступа");
+        }
+
+        [HttpPost("CreateGOST")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateGOST([FromForm] GostFormData gost)
         {
-            Response<List<CreatedGOST>> result = new Response<List<CreatedGOST>>();
-            try
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Создатель")
             {
-                List<CreatedGOST> res = await _igost.CreateGOST(User.Identity.Name, gost);
+                var result = new Response<List<CreatedGOST>>();
+                try
+                {
+                    var res = await _igost.CreateGOST(gost);
 
-                if (res != null)
-                {
-                    result.StatusCode = 0;
-                    result.Result = res;
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    result.StatusCode = -2;
-                    result.ErrorMessage = "Не найдено";
+                    _logger.LogError(ex, "Ошибка метод CreateGOST()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
                 }
+
+                return Ok(result);
             }
-            catch (Exception ex)
+            return BadRequest("Пользователь не имеет доступа");
+        }
+
+        [HttpGet("GetCreatedGOST")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> GetCreatedGOST(int id)
+        {          
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated)
             {
-                _logger.LogError(ex, "Ошибка метод GetUserInfo()");
-                result.StatusCode = -1;
-                result.ErrorMessage = ex.Message.ToString();
+                var result = new Response<CreatedGOST>();
+                try
+                {
+                    var res = await _igost.GetCreatedGOST(id, userRequest.Username);
+
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка метод CreateGOST()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
+                }
+
+                return Ok(result);
             }
-
-            return Ok(result);
-            ////var role = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
-            //if (User.Identity.IsAuthenticated && role.Role == "Создатель")
-            //{
-
-            //}
-            //return BadRequest("Пользователь не имеет доступа");
+            return BadRequest("Пользователь не имеет доступа");
         }
     }
 }

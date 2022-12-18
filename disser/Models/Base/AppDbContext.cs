@@ -12,8 +12,9 @@ namespace disser.Models.Base
         }
         public DbSet<User>? Users { get; set; }
         public DbSet<Documents>? Documents { get; set; }
-        public DbSet<CreatedGOST>? GOST { get; set; }
-        public DbSet<AllGOST>? OtherGOST { get; set; }
+        public DbSet<CreatedGOST>? CreatedGOST { get; set; }
+        public DbSet<AllGOST>? AllGOST { get; set; }
         public DbSet<RukovoditelWantWork>? RukovoditelWantWork { get; set; }
+        public DbSet<SimilarFile>? SimilarFiles { get; set; }
     }
 }

@@ -8,5 +8,4 @@ namespace disser.Models.EF.GOST
         public string KeyWords { get; set; }
         public int? CreatedGOSTId { get; set; }
     }
-
 }

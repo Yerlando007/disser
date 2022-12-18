@@ -35,7 +35,7 @@ namespace disser.Controllers
             var role = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
             if (User.Identity.IsAuthenticated && role.Role == "Admin")
             {
-                Response<List<User>> result = new Response<List<User>>();
+                var result = new Response<List<User>>();
                 try
                 {
                     List<User> res = await _userService.GetUserInfo(id);
@@ -70,7 +70,7 @@ namespace disser.Controllers
             var role = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
             if (User.Identity.IsAuthenticated && role.Role == "Admin")
             {
-                Response<List<User>> result = new Response<List<User>>();
+                var result = new Response<List<User>>();
                 try
                 {
                     List<User> res = await _userService.VerifyUser(verify);
@@ -105,7 +105,7 @@ namespace disser.Controllers
             var role = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
             if (User.Identity.IsAuthenticated && role.Role == "Admin")
             {
-                Response<List<User>> result = new Response<List<User>>();
+                var result = new Response<List<User>>();
                 try
                 {
                     List<User> res = await _userService.GetUsers();
@@ -140,7 +140,7 @@ namespace disser.Controllers
             var role = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
             if (User.Identity.IsAuthenticated && role.Role == "Руководитель")
             {
-                Response<List<User>> result = new Response<List<User>>();
+                var result = new Response<List<User>>();
                 try
                 {
                     List<User> res = await _userService.GetIspoltinel(role.Id);
@@ -175,10 +175,10 @@ namespace disser.Controllers
             var role = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
             if (User.Identity.IsAuthenticated && role.Role == "Создатель")
             {
-                Response<List<User>> result = new Response<List<User>>();
+                var result = new Response<List<User>>();
                 try
                 {
-                    List<User> res = await _userService.GetRukovoditel();
+                    var res = await _userService.GetRukovoditel();
 
                     if (res != null)
                     {
@@ -207,10 +207,10 @@ namespace disser.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Login([FromForm] LoginFormData user)
         {
-            Response<LoginRole<List<AuthOptions>>> result = new Response<LoginRole<List<AuthOptions>>>();
+            var result = new Response<LoginRole<List<AuthOptions>>>();
             try
             {
-                LoginRole<List<AuthOptions>> res = await _userService.GetIdentity(user);
+                var res = await _userService.GetIdentity(user);
 
                 if (res != null)
                 {
@@ -238,10 +238,10 @@ namespace disser.Controllers
         public async Task<IActionResult> Register([FromForm] UserFormData user)
 
         {
-            Response<List<User>> result = new Response<List<User>>();
+            var result = new Response<List<User>>();
             try
             {
-                List<User> res = await _userService.Register(user);
+                var res = await _userService.Register(user);
 
                 if (res != null)
                 {
