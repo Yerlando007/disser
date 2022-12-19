@@ -12,6 +12,5 @@ namespace disser.Interfaces
         Task<List<User>> GetRukovoditel();
         Task<List<User>> GetIspoltinel(int id);
         Task<List<User>> VerifyUser([FromForm] VerifyFormData user);
-        Task<List<User>> GetUserInfo(int id);
     }
 }

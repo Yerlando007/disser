@@ -31,12 +31,10 @@ namespace disser.Models.Base
         public List<DateTime> EndDate { get; set; }
         public List<string> Comment { get; set; }
         public int GOSTId { get; set; }
-        public int RukovoditelId { get; set; }
     }
     public class GostFormData
     {
         public List<IFormFile> Gost { get; set; }
-        public int UserId { get; set; }
     }
     public class GiveTasktoIspolnitel
     {

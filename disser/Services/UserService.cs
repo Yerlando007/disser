@@ -17,18 +17,16 @@ namespace disser.Services
 {
     public class UserService : IUserService
     {
-        private static string _pathToImages = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot//UserFiles");
+        private static string _pathToImages = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "UserFiles");
         private readonly AppDbContext _db;
         public UserService(AppDbContext db)
             => _db = db;
-
         public DateTime deletedotfromdate(DateTime datewithoutdot)
         {
             var newdatewithoutdot = datewithoutdot.ToString("yyyy-MM-dd HH:mm:ss");
             DateTime newdatenormal = Convert.ToDateTime(newdatewithoutdot);
             return newdatenormal;
         }
-
         public List<string> _AddFiles(List<IFormFile> addedFiles)
         {
             var filelist = new List<string>();
@@ -53,7 +51,6 @@ namespace disser.Services
             }
             return filelist;
         }
-
         private ClaimsIdentity _GetIdentity(string username, string password)
         {
             var person = _db.Users.FirstOrDefault(x => x.Username == username && x.Password == password);
@@ -73,17 +70,6 @@ namespace disser.Services
             // если пользователя не найдено
             return null;
         }
-
-        public async Task<List<User>> GetUserInfo(int id)
-        {
-            var user = new List<User>();
-            var users = await _db.Users.FirstOrDefaultAsync(r => r.Id == id);
-            var document = await _db.Documents.Where(r => r.UserId == id).ToListAsync();
-            users.Documents = document;
-            user.Add(users);
-            return user;
-        }
-
         public async Task<List<User>> VerifyUser([FromForm] VerifyFormData verify)
         {
             var result = new List<User>();
@@ -93,27 +79,33 @@ namespace disser.Services
             request.Role = verify.Role;
             result.Add(request);
             await _db.SaveChangesAsync();
+            //foreach (var item in users)
+            //{
+            //    var document = await _db.Documents.Where(r => r.UserId == item.Id).ToListAsync();
+            //    item.Documents = document;
+            //}
             return result;
         }
-
         public async Task<List<User>> GetRukovoditel()
         {
             var users = await _db.Users.Where(r => r.Role == "Руководитель").ToListAsync();
             return users;
         }
-
         public async Task<List<User>> GetIspoltinel(int id)
         {
             var users = await _db.Users.Where(r => r.Role == "Исполнитель" && r.LeaderID == id).ToListAsync();
             return users;
         }
-
         public async Task<List<User>> GetUsers()
         {
             var users = await _db.Users.ToListAsync();
+            foreach (var item in users)
+            {
+                var document = await _db.Documents.Where(r => r.UserId == item.Id).ToListAsync();
+                item.Documents = document;
+            }
             return users;
         }
-
         public async Task<LoginRole<List<AuthOptions>>> GetIdentity([FromForm] LoginFormData user)
         {
             var role = new LoginRole<List<AuthOptions>>();

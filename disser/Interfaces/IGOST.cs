@@ -7,11 +7,15 @@ namespace disser.Interfaces
 {
     public interface IGOST
     {
-        Task<List<CreatedGOST>> CreateGOST([FromForm] GostFormData gost);
-        Task<CreatedGOST> GetCreatedGOST(int id, string userName);
-        Task<RukovoditelWantWork> GiveTasktoIspoknitel(GiveTasktoIspolnitel giveTasktoIspolnitel);
-        Task<CreatedGOST> TakeGOSTsByRukovoditel([FromForm] TakeGOSTs gost, string userName);
+        Task<List<CreatedGOST>> CreateGOST([FromForm] GostFormData gost, string userName);
+        Task<CreatedGOST> GetCreatedGOST(int id);
+        Task<RukovoditelWantWork> GiveTasktoIspolnitel(GiveTasktoIspolnitel giveTasktoIspolnitel);
+        Task<List<RukovoditelWantWork>> TakeGOSTsByRukovoditel([FromForm] TakeGOSTs gost, string userName);
         Task<List<AllGOST>> AddGOSTS();
         Task<CreatedGOST> ChoiseRukovoditel([FromForm] ChoisedRukovoditel choisedRukovoditel);
+        Task<CreatedGOST> RukovoditelAcceptWork([FromForm] RukovoditelAcceptWork rukovoditelAcceptWork);
+        Task<List<TranslateFile>> TranslatorAddFile([FromForm] TranslatorAddFile translatorAddFile, string userName);
+        Task<TranslateFile> AccepTranslatorWork([FromForm] AcceptTanslatorWork acceptTanslatorWork);
+        Task<RukovoditelWantWork> IspolnitelWork([FromForm] IspolnitelWork ispolnitelWork, string userName);
     }
 }

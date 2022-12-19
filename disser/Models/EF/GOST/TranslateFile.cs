@@ -4,7 +4,7 @@ namespace disser.Models.EF.GOST
 {
     public class TranslateFile : EntityBase<int>
     {
-        public double WorkPercentage { get; set; }
+        public int WorkPercentage { get; set; }
         public string TranslateFileName { get; set; }
         public string CommentFromTranslator { get; set; }
         public string? CommentToTranslator { get; set; }

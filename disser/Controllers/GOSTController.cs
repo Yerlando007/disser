@@ -23,7 +23,6 @@ namespace disser.Controllers
             _igost = gost;
             _db = db;
         }
-
         [HttpPost("AddGOSTS")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddGOSTS()
@@ -58,18 +57,17 @@ namespace disser.Controllers
             }
             return BadRequest("Пользователь не имеет доступа");
         }
-
-        [HttpPost("GiveTaskToIspolnitel")]
+        [HttpPost("IspolnitelWork")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> GiveTaskToIspolnitel()
+        public async Task<IActionResult> IspolnitelWork([FromForm] IspolnitelWork ispolnitelWork)
         {
             var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
-            if (User.Identity.IsAuthenticated && userRequest.Role == "Создатель")
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Исполнитель")
             {
-                var result = new Response<List<AllGOST>>();
+                var result = new Response<RukovoditelWantWork>();
                 try
                 {
-                    var res = await _igost.AddGOSTS();
+                    var res = await _igost.IspolnitelWork(ispolnitelWork, userRequest.Username);
 
                     if (res != null)
                     {
@@ -93,7 +91,108 @@ namespace disser.Controllers
             }
             return BadRequest("Пользователь не имеет доступа");
         }
+        [HttpPost("AccepTranslatorWork")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> AccepTranslatorWork([FromForm] AcceptTanslatorWork acceptTanslatorWork)
+        {
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Руководитель")
+            {
+                var result = new Response<TranslateFile>();
+                try
+                {
+                    var res = await _igost.AccepTranslatorWork(acceptTanslatorWork);
 
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка метод GetUserInfo()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
+                }
+
+                return Ok(result);
+            }
+            return BadRequest("Пользователь не имеет доступа");
+        }
+        [HttpPost("TranslatorAddFile")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> TranslatorAddFile([FromForm] TranslatorAddFile translatorAddFile)
+        {
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Переводчик")
+            {
+                var result = new Response<List<TranslateFile>>();
+                try
+                {
+                    var res = await _igost.TranslatorAddFile(translatorAddFile, userRequest.Username);
+
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка метод GetUserInfo()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
+                }
+
+                return Ok(result);
+            }
+            return BadRequest("Пользователь не имеет доступа");
+        }
+        [HttpPost("RukovoditelAcceptWork")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> RukovoditelAcceptWork([FromForm] RukovoditelAcceptWork rukovoditelAcceptWork)
+        {
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Руководитель")
+            {
+                var result = new Response<CreatedGOST>();
+                try
+                {
+                    var res = await _igost.RukovoditelAcceptWork(rukovoditelAcceptWork);
+
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка метод GetUserInfo()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
+                }
+
+                return Ok(result);
+            }
+            return BadRequest("Пользователь не имеет доступа");
+        }
         [HttpPost("ChoiseRukovoditel")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> ChoiseRukovoditel([FromForm] ChoisedRukovoditel choisedRukovoditel)
@@ -127,50 +226,47 @@ namespace disser.Controllers
             }
             return BadRequest("Пользователь не имеет доступа");
         }
-
-        [HttpPost("ChoiseRukovoditel")]
+        [HttpPost("GiveTasktoIspolnitel")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> GiveTasktoIspoknitel([FromForm] GiveTasktoIspolnitel giveTasktoIspolnitel)
+        public async Task<IActionResult> GiveTasktoIspolnitel([FromForm] GiveTasktoIspolnitel giveTasktoIspolnitel)
         {
-            var result = new Response<RukovoditelWantWork>();
-            try
+            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
+            if (User.Identity.IsAuthenticated && userRequest.Role == "Руководитель")
             {
-                var res = await _igost.GiveTasktoIspoknitel(giveTasktoIspolnitel);
-
-                if (res != null)
+                var result = new Response<RukovoditelWantWork>();
+                try
                 {
-                    result.StatusCode = 0;
-                    result.Result = res;
-                }
-                else
-                {
-                    result.StatusCode = -2;
-                    result.ErrorMessage = "Не найдено";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка метод ChoiseRukovoditel()");
-                result.StatusCode = -1;
-                result.ErrorMessage = ex.Message.ToString();
-            }
-            return Ok(result);
-            //var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
-            //if (User.Identity.IsAuthenticated && userRequest.Role == "Создатель")
-            //{
+                    var res = await _igost.GiveTasktoIspolnitel(giveTasktoIspolnitel);
 
-            //}
-            //return BadRequest("Пользователь не имеет доступа");
+                    if (res != null)
+                    {
+                        result.StatusCode = 0;
+                        result.Result = res;
+                    }
+                    else
+                    {
+                        result.StatusCode = -2;
+                        result.ErrorMessage = "Не найдено";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Ошибка метод ChoiseRukovoditel()");
+                    result.StatusCode = -1;
+                    result.ErrorMessage = ex.Message.ToString();
+                }
+                return Ok(result);
+            }
+            return BadRequest("Пользователь не имеет доступа");
         }
-
-        [HttpPost("TakeGOSTs")]
+        [HttpPost("TakeGOSTsByRukovoditel")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> TakeGOSTsByRukovoditel([FromForm] TakeGOSTs takeGosts)
         {
             var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
             if (User.Identity.IsAuthenticated && userRequest.Role == "Руководитель")
             {
-                var result = new Response<CreatedGOST>();
+                var result = new Response<List<RukovoditelWantWork>>();
                 try
                 {
                     var res = await _igost.TakeGOSTsByRukovoditel(takeGosts, userRequest.Username);
@@ -196,7 +292,6 @@ namespace disser.Controllers
             }
             return BadRequest("Пользователь не имеет доступа");
         }
-
         [HttpPost("CreateGOST")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateGOST([FromForm] GostFormData gost)
@@ -207,7 +302,7 @@ namespace disser.Controllers
                 var result = new Response<List<CreatedGOST>>();
                 try
                 {
-                    var res = await _igost.CreateGOST(gost);
+                    var res = await _igost.CreateGOST(gost, userRequest.Username);
 
                     if (res != null)
                     {
@@ -231,7 +326,6 @@ namespace disser.Controllers
             }
             return BadRequest("Пользователь не имеет доступа");
         }
-
         [HttpGet("GetCreatedGOST")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> GetCreatedGOST(int id)
@@ -242,7 +336,7 @@ namespace disser.Controllers
                 var result = new Response<CreatedGOST>();
                 try
                 {
-                    var res = await _igost.GetCreatedGOST(id, userRequest.Username);
+                    var res = await _igost.GetCreatedGOST(id);
 
                     if (res != null)
                     {

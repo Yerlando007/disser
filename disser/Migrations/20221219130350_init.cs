@@ -13,7 +13,7 @@ namespace disser.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "GOST",
+                name: "CreatedGOST",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -21,11 +21,13 @@ namespace disser.Migrations
                     userId = table.Column<int>(type: "integer", nullable: false),
                     ChoisedRukovoditelID = table.Column<int>(type: "integer", nullable: true),
                     OnWork = table.Column<bool>(type: "boolean", nullable: false),
+                    WorkPercentage = table.Column<int>(type: "integer", nullable: false),
+                    EndedFile = table.Column<string>(type: "text", nullable: true),
                     isFinished = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GOST", x => x.Id);
+                    table.PrimaryKey("PK_CreatedGOST", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -62,9 +64,9 @@ namespace disser.Migrations
                 {
                     table.PrimaryKey("PK_AllGOST", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AllGOST_GOST_CreatedGOSTId",
+                        name: "FK_AllGOST_CreatedGOST_CreatedGOSTId",
                         column: x => x.CreatedGOSTId,
-                        principalTable: "GOST",
+                        principalTable: "CreatedGOST",
                         principalColumn: "Id");
                 });
 
@@ -75,23 +77,26 @@ namespace disser.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Comment = table.Column<string>(type: "text", nullable: false),
+                    CommentFromIspolnitel = table.Column<string>(type: "text", nullable: true),
+                    CommentToIspolnitel = table.Column<string>(type: "text", nullable: true),
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IspoltitelID = table.Column<string>(type: "text", nullable: true),
-                    File = table.Column<string>(type: "text", nullable: true),
-                    WorkPercentage = table.Column<double>(type: "double precision", nullable: true),
-                    isFinishedTask = table.Column<bool>(type: "boolean", nullable: true),
-                    userId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedGOSTId = table.Column<int>(type: "integer", nullable: true)
+                    File = table.Column<string>(type: "text", nullable: false),
+                    IspolnitelFile = table.Column<string>(type: "text", nullable: true),
+                    isFinishedTask = table.Column<bool>(type: "boolean", nullable: false),
+                    RukovoditelId = table.Column<int>(type: "integer", nullable: false),
+                    IspolnitelId = table.Column<int>(type: "integer", nullable: true),
+                    CreatedGOSTId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RukovoditelWantWork", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RukovoditelWantWork_GOST_CreatedGOSTId",
+                        name: "FK_RukovoditelWantWork_CreatedGOST_CreatedGOSTId",
                         column: x => x.CreatedGOSTId,
-                        principalTable: "GOST",
-                        principalColumn: "Id");
+                        principalTable: "CreatedGOST",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,15 +107,40 @@ namespace disser.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     GOSTName = table.Column<string>(type: "text", nullable: false),
                     SimilarFiles = table.Column<string>(type: "text", nullable: false),
-                    createdGOSTID = table.Column<int>(type: "integer", nullable: false)
+                    CreatedGOSTId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SimilarFiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SimilarFiles_GOST_createdGOSTID",
-                        column: x => x.createdGOSTID,
-                        principalTable: "GOST",
+                        name: "FK_SimilarFiles_CreatedGOST_CreatedGOSTId",
+                        column: x => x.CreatedGOSTId,
+                        principalTable: "CreatedGOST",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TranslateFile",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    WorkPercentage = table.Column<int>(type: "integer", nullable: false),
+                    TranslateFileName = table.Column<string>(type: "text", nullable: false),
+                    CommentFromTranslator = table.Column<string>(type: "text", nullable: false),
+                    CommentToTranslator = table.Column<string>(type: "text", nullable: true),
+                    TranslatorId = table.Column<int>(type: "integer", nullable: false),
+                    IsFinished = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedGOSTId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TranslateFile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TranslateFile_CreatedGOST_CreatedGOSTId",
+                        column: x => x.CreatedGOSTId,
+                        principalTable: "CreatedGOST",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -152,9 +182,14 @@ namespace disser.Migrations
                 column: "CreatedGOSTId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SimilarFiles_createdGOSTID",
+                name: "IX_SimilarFiles_CreatedGOSTId",
                 table: "SimilarFiles",
-                column: "createdGOSTID");
+                column: "CreatedGOSTId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TranslateFile_CreatedGOSTId",
+                table: "TranslateFile",
+                column: "CreatedGOSTId");
         }
 
         /// <inheritdoc />
@@ -173,10 +208,13 @@ namespace disser.Migrations
                 name: "SimilarFiles");
 
             migrationBuilder.DropTable(
+                name: "TranslateFile");
+
+            migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "GOST");
+                name: "CreatedGOST");
         }
     }
 }

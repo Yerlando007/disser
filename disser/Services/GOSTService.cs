@@ -142,7 +142,7 @@ namespace disser.Services
         {
             string filename = addedFile.FileName;
             filename = Path.GetFileName(filename);
-            string uploadpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot//TranslatorFiles", filename);
+            string uploadpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "TranslatorFiles", filename);
             var stream = new FileStream(uploadpath, FileMode.Create);
             addedFile.CopyToAsync(stream);
             Thread.Sleep(1500);
@@ -159,7 +159,7 @@ namespace disser.Services
             return createdGOST;
         }
         //Руководитель дает задание исполнителю
-        public async Task<RukovoditelWantWork> GiveTasktoIspoknitel([FromForm] GiveTasktoIspolnitel giveTasktoIspolnitel)
+        public async Task<RukovoditelWantWork> GiveTasktoIspolnitel([FromForm] GiveTasktoIspolnitel giveTasktoIspolnitel)
         {
             var rukovoditelWantWorkRequest = await _db.RukovoditelWantWork.FirstOrDefaultAsync(r => r.Id == giveTasktoIspolnitel.TaskId);
             rukovoditelWantWorkRequest.IspolnitelId = giveTasktoIspolnitel.IspoltitelID;
@@ -188,6 +188,15 @@ namespace disser.Services
             await _db.SaveChangesAsync();
             return translateFileRequest;
         }
+        //Подсчет страниц
+        public int PageCount(string path)
+        {
+            Document doc = new Document();
+            doc.LoadFromFile(path);
+            int pageCoutn = doc.PageCount;
+            doc.Close();
+            return pageCoutn;
+        }
         //Переводчики добавляют файл
         public async Task<List<TranslateFile>> TranslatorAddFile([FromForm] TranslatorAddFile translatorAddFile, string userName)
         {
@@ -195,14 +204,19 @@ namespace disser.Services
             var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == userName);
             var createdGOSTRequest = await _db.CreatedGOST.FirstOrDefaultAsync(r => r.ChoisedRukovoditelID == userRequest.LeaderID);
             var translatorFile = _AddTranslatorFilesForGOST(translatorAddFile.TranslateFileName);
+            string uploadpathTranslate = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "TranslatorFiles", translatorFile);
+            string uploadpathEndFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "RukovoditelFiles", createdGOSTRequest.EndedFile);
             //посчитать количество страниц объеденного файла и найти процентное соотношение с загружаемым файлом
+            int pageCountEndFile = PageCount(uploadpathEndFile);
+            int pageCountTranslate = PageCount(uploadpathTranslate);
+            var workPercent = pageCountTranslate * 100 / pageCountEndFile;
             translateResult.Add(new TranslateFile
             {
                 TranslateFileName = translatorFile,
                 CommentFromTranslator = translatorAddFile.CommentFromTranslator,
                 TranslatorId = userRequest.Id,
                 IsFinished = false,       
-                //WorkPercentage = 
+                WorkPercentage = Convert.ToInt32(workPercent)
             });
             createdGOSTRequest.FullFileToTranslate = translateResult;
             await _db.SaveChangesAsync();
@@ -214,29 +228,51 @@ namespace disser.Services
             var result = new CreatedGOST();
             var rukovoditelWantWorkRequest = await _db.RukovoditelWantWork.FirstOrDefaultAsync(r => r.Id == rukovoditelAcceptWork.TaskId);
             var createdGOSTRequest = await _db.CreatedGOST.FirstOrDefaultAsync(r => r.Id == rukovoditelWantWorkRequest.CreatedGOSTId);
-            var WorkIsponitelFullCount = await _db.RukovoditelWantWork.ToListAsync();
-            var WorkIsponitelFinishCount = WorkIsponitelFullCount.Where(r => r.isFinishedTask == true).ToList();            
-            double percentByTask = 100 / WorkIsponitelFullCount.Count;
-            double percentFinish = percentByTask * WorkIsponitelFinishCount.Count;
+            var WorkIsponitelFullCount = await _db.RukovoditelWantWork.Where(r => r.RukovoditelId == createdGOSTRequest.ChoisedRukovoditelID).ToListAsync();
+            var WorkIsponitelFinishCount = WorkIsponitelFullCount.Where(r => r.isFinishedTask == true).ToList();
+            double percentByTask = 0;
+            double percentFinish = 0;
             rukovoditelWantWorkRequest.CommentToIspolnitel = rukovoditelAcceptWork.CommentToIspolnitel;
-            rukovoditelWantWorkRequest.isFinishedTask = rukovoditelAcceptWork.IsFinished;                  
-            createdGOSTRequest.WorkPercentage = percentFinish;
-            //надо сюда объеденный файл
-            //createdGOSTRequest.EndedFile
+            rukovoditelWantWorkRequest.isFinishedTask = rukovoditelAcceptWork.IsFinished;
+            percentByTask = 100 / WorkIsponitelFullCount.Count;
+            if (rukovoditelWantWorkRequest.isFinishedTask == true)
+            {               
+                percentFinish = percentByTask * ( WorkIsponitelFinishCount.Count + 1 );
+            }
+            else
+            {
+                percentFinish = percentByTask * WorkIsponitelFinishCount.Count;                
+            }
+            createdGOSTRequest.WorkPercentage = Convert.ToInt32(percentFinish);
+            if (percentFinish > 97)
+            {
+                createdGOSTRequest.WorkPercentage = 100;
+                Document document = new Document();
+                var allIspolnitelFile = _db.RukovoditelWantWork.Where(r => r.RukovoditelId == createdGOSTRequest.ChoisedRukovoditelID).ToList();
+                document.LoadFromFile(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "IspolnitelFiles", allIspolnitelFile[0].IspolnitelFile), FileFormat.Doc);
+                string uniqNum = "";
+                for (int i = 1; i < allIspolnitelFile.Count; i++)
+                {
+                    document.InsertTextFromFile(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "IspolnitelFiles", allIspolnitelFile[i].IspolnitelFile), FileFormat.Doc);
+                }
+                uniqNum = "MergedFile-" + Guid.NewGuid().GetHashCode().ToString().PadLeft(5, '0') + ".doc";
+                document.SaveToFile(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "RukovoditelFiles", uniqNum), FileFormat.Doc);
+                createdGOSTRequest.EndedFile = uniqNum;
+            }
             await _db.SaveChangesAsync();
             createdGOSTRequest.RukovoditelWantWork = WorkIsponitelFullCount;
             return createdGOSTRequest;
         }
         //Руководитель оставляет заявку на работу
-        public async Task<CreatedGOST> TakeGOSTsByRukovoditel([FromForm] TakeGOSTs takeGOSTs, string userName)
+        public async Task<List<RukovoditelWantWork>> TakeGOSTsByRukovoditel([FromForm] TakeGOSTs takeGOSTs, string userName)
         {
-            var result = new List<RukovoditelWantWork>();
+            var TakeGOSTResult = new List<RukovoditelWantWork>();
             var createdGOSTRequest = await _db.CreatedGOST.FirstOrDefaultAsync(r => r.Id == takeGOSTs.GOSTId);
             var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == userName);
             var fileList = _AddRukovoditelFilesForGOST(takeGOSTs.File);
             for (int i = 0; i < takeGOSTs.File.Count; i++)
             {
-                result.Add(new RukovoditelWantWork
+                TakeGOSTResult.Add(new RukovoditelWantWork
                 {
                     File = fileList[i],
                     Comment = takeGOSTs.Comment[i],
@@ -244,28 +280,22 @@ namespace disser.Services
                     EndDate = takeGOSTs.EndDate[i],
                     RukovoditelId = userRequest.Id,
                     isFinishedTask = false
-                    
-                });         
+                });
             }
-            createdGOSTRequest.RukovoditelWantWork = result;
+            createdGOSTRequest.RukovoditelWantWork = TakeGOSTResult;
             await _db.SaveChangesAsync();
-            return createdGOSTRequest;
+            return TakeGOSTResult;
         }
         //получить полную информацию
-        public async Task<CreatedGOST> GetCreatedGOST(int id, string userName)
+        public async Task<CreatedGOST> GetCreatedGOST(int id)
         {
             var createdGOSTRequest = await _db.CreatedGOST.FirstOrDefaultAsync(r => r.Id == id);
-            var userRequest = await _db.Users.FirstOrDefaultAsync(r => r.Username == userName);
-            var translatedFileRequest = await _db.TranslateFile.Where(r => r.CreatedGOSTId == id).ToListAsync();
-            if (createdGOSTRequest.userId != userRequest.Id)
-            {
-                return null;
-            }        
+            var translatedFileRequest = await _db.TranslateFile.Where(r => r.CreatedGOSTId == id).ToListAsync();     
             var RukovoditelWantWorkRequest = await _db.RukovoditelWantWork.ToListAsync();
             var createdGOSTFiles = await _db.AllGOST.Where(r => r.CreatedGOSTId == id).ToListAsync();
-            if (userRequest.Id == createdGOSTRequest.ChoisedRukovoditelID)
+            if (createdGOSTRequest.ChoisedRukovoditelID != null)
             {
-                RukovoditelWantWorkRequest = RukovoditelWantWorkRequest.Where(r => r.RukovoditelId == userRequest.Id).ToList();
+                RukovoditelWantWorkRequest = RukovoditelWantWorkRequest.Where(r => r.RukovoditelId == createdGOSTRequest.ChoisedRukovoditelID).ToList();
             }
             var similarGOSTRequest = await _db.SimilarFiles.Where(r => r.CreatedGOSTId == id).ToListAsync();
             createdGOSTRequest.RukovoditelWantWork = RukovoditelWantWorkRequest;
@@ -275,7 +305,8 @@ namespace disser.Services
             await _db.SaveChangesAsync();
             return createdGOSTRequest;
         }
-        public async Task<List<CreatedGOST>> CreateGOST([FromForm] GostFormData gost)
+        //создание госта
+        public async Task<List<CreatedGOST>> CreateGOST([FromForm] GostFormData gost, string userName)
         {
             var result = new List<CreatedGOST>();
             var similarFiles = new List<SimilarFile>();

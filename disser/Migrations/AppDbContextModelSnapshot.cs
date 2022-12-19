@@ -59,8 +59,14 @@ namespace disser.Migrations
                     b.Property<int?>("ChoisedRukovoditelID")
                         .HasColumnType("integer");
 
+                    b.Property<string>("EndedFile")
+                        .HasColumnType("text");
+
                     b.Property<bool>("OnWork")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("WorkPercentage")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("isFinished")
                         .HasColumnType("boolean");
@@ -70,7 +76,7 @@ namespace disser.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("GOST");
+                    b.ToTable("CreatedGOST");
                 });
 
             modelBuilder.Entity("disser.Models.EF.GOST.RukovoditelWantWork", b =>
@@ -85,29 +91,36 @@ namespace disser.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("CreatedGOSTId")
+                    b.Property<string>("CommentFromIspolnitel")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CommentToIspolnitel")
+                        .HasColumnType("text");
+
+                    b.Property<int>("CreatedGOSTId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("File")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("IspoltitelID")
+                    b.Property<string>("IspolnitelFile")
                         .HasColumnType("text");
+
+                    b.Property<int?>("IspolnitelId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RukovoditelId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double?>("WorkPercentage")
-                        .HasColumnType("double precision");
-
-                    b.Property<bool?>("isFinishedTask")
+                    b.Property<bool>("isFinishedTask")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("userId")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -124,6 +137,9 @@ namespace disser.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CreatedGOSTId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("GOSTName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -132,14 +148,49 @@ namespace disser.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("createdGOSTID")
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedGOSTId");
+
+                    b.ToTable("SimilarFiles");
+                });
+
+            modelBuilder.Entity("disser.Models.EF.GOST.TranslateFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CommentFromTranslator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CommentToTranslator")
+                        .HasColumnType("text");
+
+                    b.Property<int>("CreatedGOSTId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsFinished")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TranslateFileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TranslatorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WorkPercentage")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("createdGOSTID");
+                    b.HasIndex("CreatedGOSTId");
 
-                    b.ToTable("SimilarFiles");
+                    b.ToTable("TranslateFile");
                 });
 
             modelBuilder.Entity("disser.Models.EF.Users.Documents", b =>
@@ -213,7 +264,7 @@ namespace disser.Migrations
             modelBuilder.Entity("disser.Models.EF.GOST.AllGOST", b =>
                 {
                     b.HasOne("disser.Models.EF.GOST.CreatedGOST", null)
-                        .WithMany("AllGOST")
+                        .WithMany("CreatedGOSTAddedFiles")
                         .HasForeignKey("CreatedGOSTId");
                 });
 
@@ -221,14 +272,25 @@ namespace disser.Migrations
                 {
                     b.HasOne("disser.Models.EF.GOST.CreatedGOST", null)
                         .WithMany("RukovoditelWantWork")
-                        .HasForeignKey("CreatedGOSTId");
+                        .HasForeignKey("CreatedGOSTId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("disser.Models.EF.GOST.SimilarFile", b =>
                 {
                     b.HasOne("disser.Models.EF.GOST.CreatedGOST", null)
                         .WithMany("similarGOSTs")
-                        .HasForeignKey("createdGOSTID")
+                        .HasForeignKey("CreatedGOSTId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("disser.Models.EF.GOST.TranslateFile", b =>
+                {
+                    b.HasOne("disser.Models.EF.GOST.CreatedGOST", null)
+                        .WithMany("FullFileToTranslate")
+                        .HasForeignKey("CreatedGOSTId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -244,7 +306,9 @@ namespace disser.Migrations
 
             modelBuilder.Entity("disser.Models.EF.GOST.CreatedGOST", b =>
                 {
-                    b.Navigation("AllGOST");
+                    b.Navigation("CreatedGOSTAddedFiles");
+
+                    b.Navigation("FullFileToTranslate");
 
                     b.Navigation("RukovoditelWantWork");
 

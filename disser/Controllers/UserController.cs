@@ -21,48 +21,11 @@ namespace disser.Controllers
             _userService = userService;
             _db = db;
         }
-
         [HttpGet("GetLogin")]
         public IActionResult GetLogin()
         {
             return Ok($"Ваш логин: {User.Identity.Name}");
         }
-
-        [HttpGet("GetUserInfo")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> GetUserInfo(int id)
-        {
-            var role = await _db.Users.FirstOrDefaultAsync(r => r.Username == User.Identity.Name);
-            if (User.Identity.IsAuthenticated && role.Role == "Admin")
-            {
-                var result = new Response<List<User>>();
-                try
-                {
-                    List<User> res = await _userService.GetUserInfo(id);
-
-                    if (res != null)
-                    {
-                        result.StatusCode = 0;
-                        result.Result = res;
-                    }
-                    else
-                    {
-                        result.StatusCode = -2;
-                        result.ErrorMessage = "Не найдено";
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Ошибка метод GetUserInfo()");
-                    result.StatusCode = -1;
-                    result.ErrorMessage = ex.Message.ToString();
-                }
-
-                return Ok(result);
-            }
-            return BadRequest("Пользователь не имеет доступа");
-        }
-
         [HttpPost("VerifyUser")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> VerifyUser([FromForm] VerifyFormData verify)
@@ -92,12 +55,10 @@ namespace disser.Controllers
                     result.StatusCode = -1;
                     result.ErrorMessage = ex.Message.ToString();
                 }
-
                 return Ok(result);
             }
             return BadRequest("Пользователь не имеет доступа");
         }
-
         [HttpGet("GetUsers")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> GetUsers()
@@ -127,12 +88,10 @@ namespace disser.Controllers
                     result.StatusCode = -1;
                     result.ErrorMessage = ex.Message.ToString();
                 }
-
                 return Ok(result);
             }
             return BadRequest("Пользователь не имеет доступа");
         }
-
         [HttpGet("GetIspoltinel")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> GetIspoltinel()
@@ -162,12 +121,10 @@ namespace disser.Controllers
                     result.StatusCode = -1;
                     result.ErrorMessage = ex.Message.ToString();
                 }
-
                 return Ok(result);
             }
             return BadRequest("Пользователь не имеет доступа");
         }
-
         [HttpGet("GetRukovoditel")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> GetRukovoditel()
@@ -197,12 +154,10 @@ namespace disser.Controllers
                     result.StatusCode = -1;
                     result.ErrorMessage = ex.Message.ToString();
                 }
-
                 return Ok(result);
             }
             return BadRequest("Пользователь не имеет доступа");
         }
-
         [HttpPost("Login")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Login([FromForm] LoginFormData user)
@@ -231,8 +186,6 @@ namespace disser.Controllers
             }
             return Ok(result);
         }
-
-
         [HttpPost("Register")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Register([FromForm] UserFormData user)
@@ -260,7 +213,6 @@ namespace disser.Controllers
                 result.StatusCode = -1;
                 result.ErrorMessage = ex.Message.ToString();
             }
-
             return Ok(result);
         }
     }
